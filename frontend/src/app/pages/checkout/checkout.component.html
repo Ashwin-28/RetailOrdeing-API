@@ -1,0 +1,29 @@
+<div class="page">
+  <header class="header">
+    <h2>Checkout</h2>
+    <button *ngIf="!done" (click)="goBack()" class="ghost-btn">← Back to Cart</button>
+  </header>
+
+  <div class="form-wrap" *ngIf="!done; else success">
+    <div class="glass-card form-card">
+      <h3>Delivery Details</h3>
+      <form (ngSubmit)="confirm()">
+        <div class="inp"><label>Full Name</label><input [(ngModel)]="form.customerName" name="name" required placeholder="Jane Doe"></div>
+        <div class="inp"><label>Phone</label><input [(ngModel)]="form.customerPhone" name="phone" required placeholder="+91 98765 43210"></div>
+        <div class="inp"><label>Address</label><textarea [(ngModel)]="form.customerAddress" name="address" required rows="3" placeholder="123 Main St..."></textarea></div>
+        <div class="inp"><label>Notes (optional)</label><input [(ngModel)]="form.notes" name="notes" placeholder="Any special instructions?"></div>
+        <p class="error" *ngIf="error">{{ error }}</p>
+        <button type="submit" class="cta-btn full" [disabled]="loading">{{ loading ? 'Placing...' : 'Confirm Order' }}</button>
+      </form>
+    </div>
+  </div>
+
+  <ng-template #success>
+    <div class="glass-card success">
+      <div class="icon">✓</div>
+      <h2>Order Placed!</h2>
+      <p>Your order has been submitted successfully.</p>
+      <button class="cta-btn" (click)="goDashboard()">Back to Dashboard</button>
+    </div>
+  </ng-template>
+</div>
