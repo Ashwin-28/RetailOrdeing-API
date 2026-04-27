@@ -23,6 +23,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<RetailAPP_API.Services.IAuthService, RetailAPP_API.Services.AuthService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

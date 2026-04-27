@@ -1,4 +1,4 @@
-﻿using RetailAPP_API.Models.Enums;
+using RetailAPP_API.Models.Enums;
 
 namespace RetailAPP_API.Models
 {
@@ -19,10 +19,10 @@ namespace RetailAPP_API.Models
         public DateTime? UpdatedAt { get; set; }
 
         // Foreign key
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         // Navigation
-        public User User { get; set; } = null!;
+        public ApplicationUser User { get; set; } = null!;
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     }
