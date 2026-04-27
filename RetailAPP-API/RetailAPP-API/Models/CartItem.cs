@@ -1,4 +1,4 @@
-﻿namespace RetailAPP_API.Models
+namespace RetailAPP_API.Models
 {
     public class CartItem
     {
@@ -7,11 +7,11 @@
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
         // Foreign keys
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public int ProductId { get; set; }
 
         // Navigation
-        //public User User { get; set; } = null!;
+        public ApplicationUser User { get; set; } = null!;
         public Product Product { get; set; } = null!;
 
     }
