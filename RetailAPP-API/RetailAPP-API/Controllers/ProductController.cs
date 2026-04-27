@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RetailAPP_API.DTOs.ProductDTOs;
 using RetailAPP_API.Services;
 
@@ -15,7 +16,6 @@ namespace RetailAPP_API.Controllers
             _productService = productService;
         }
 
-        // GET: /api/products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetProducts([FromQuery] int? categoryId)
         {
@@ -23,7 +23,6 @@ namespace RetailAPP_API.Controllers
             return Ok(products);
         }
 
-        // GET: /api/products/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductResponseDto>> GetProduct(int id)
         {
@@ -35,8 +34,7 @@ namespace RetailAPP_API.Controllers
             return Ok(product);
         }
 
-        // POST: /api/products
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<ProductResponseDto>> CreateProduct([FromBody] CreateProductDto createDto)
         {
@@ -46,8 +44,7 @@ namespace RetailAPP_API.Controllers
             return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.Id }, createdProduct);
         }
 
-        // PUT: /api/products/{id}
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDto updateDto)
         {
@@ -59,8 +56,7 @@ namespace RetailAPP_API.Controllers
             return NoContent();
         }
 
-        // DELETE: /api/products/{id}
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -70,8 +66,7 @@ namespace RetailAPP_API.Controllers
             return NoContent();
         }
 
-        // PUT: /api/products/{id}/stock
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}/stock")]
         public async Task<IActionResult> UpdateStock(int id, [FromBody] UpdateStockDto stockDto)
         {

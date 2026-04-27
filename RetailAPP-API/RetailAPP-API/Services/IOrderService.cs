@@ -9,5 +9,7 @@ namespace RetailAPP_API.Services
         Task<OrderDto?> GetOrderByIdAsync(int id, string userId);
         Task<IEnumerable<OrderDto>> GetAllOrdersAsync();
         Task<bool> UpdateOrderStatusAsync(int id, OrderStatus status);
+        Task<OrderDto?> CreateOrderAsync(string userId, PlaceOrderDto placeOrderDto);
     }
 }
+

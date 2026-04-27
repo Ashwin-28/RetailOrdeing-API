@@ -9,7 +9,6 @@ namespace RetailAPP_API.Services
     public class CartService : ICartService
     {
         private readonly ApplicationDbContext _context;
-        private const decimal TaxRate = 0.18m; // 18% GST
 
         public CartService(ApplicationDbContext context)
         {
@@ -33,14 +32,12 @@ namespace RetailAPP_API.Services
             }).ToList();
 
             var subTotal = itemsDto.Sum(i => i.LineTotal);
-            var tax = subTotal * TaxRate;
 
             return new CartSummaryDto
             {
                 Items = itemsDto,
                 SubTotal = subTotal,
-                Tax = tax,
-                Total = subTotal + tax,
+                Total = subTotal,
                 ItemCount = itemsDto.Sum(i => i.Quantity)
             };
         }
@@ -101,7 +98,7 @@ namespace RetailAPP_API.Services
                 UserId = userId,
                 PlacedAt = DateTime.UtcNow,
                 Status = OrderStatus.Confirmed,
-                TotalAmount = cart.CartItems.Sum(ci => ci.Product.Price * ci.Quantity) * (1 + TaxRate)
+                TotalAmount = cart.CartItems.Sum(ci => ci.Product.Price * ci.Quantity)
             };
 
             // 2. Create Order Items and update Stock

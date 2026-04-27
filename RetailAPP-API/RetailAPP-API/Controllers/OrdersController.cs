@@ -8,7 +8,7 @@ namespace RetailAPP_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Requires authentication by default
+    [Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -45,13 +45,57 @@ namespace RetailAPP_API.Controllers
         }
 
         [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
         {
             var orders = await _orderService.GetAllOrdersAsync();
             return Ok(orders);
         }
 
+        [HttpPost]
+        public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] PlaceOrderDto placeOrderDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new
+                {
+                    Message = "Invalid request data",
+                    Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
+                });
+
+            if (string.IsNullOrWhiteSpace(placeOrderDto.CustomerName))
+                return BadRequest(new { Message = "Customer name is required" });
+
+            if (string.IsNullOrWhiteSpace(placeOrderDto.CustomerPhone))
+                return BadRequest(new { Message = "Customer phone is required" });
+
+            if (string.IsNullOrWhiteSpace(placeOrderDto.CustomerAddress))
+                return BadRequest(new { Message = "Customer address is required" });
+
+            try
+            {
+                var userId = GetCurrentUserId();
+                var createdOrder = await _orderService.CreateOrderAsync(userId, placeOrderDto);
+
+                if (createdOrder == null)
+                    return BadRequest(new
+                    {
+                        Message = "Order creation failed. Please ensure you have items in your cart with sufficient stock."
+                    });
+
+                return CreatedAtAction(nameof(GetOrderById), new { id = createdOrder.Id }, createdOrder);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while creating the order",
+                    Error = ex.Message
+                });
+            }
+        }
+
         [HttpPut("{id}/status")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDto model)
         {
             if (!ModelState.IsValid)
@@ -66,3 +110,4 @@ namespace RetailAPP_API.Controllers
         }
     }
 }
+

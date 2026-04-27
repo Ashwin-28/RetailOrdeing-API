@@ -14,29 +14,16 @@ namespace RetailAPP_API.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync(int? categoryId)
-        {
-            var query = _context.Products
+        public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync(int? categoryId) =>
+            await _context.Products
                 .Include(p => p.Category)
-                .Where(p => !p.IsDeleted)
-                .AsQueryable();
-
-            if (categoryId.HasValue)
-            {
-                query = query.Where(p => p.CategoryId == categoryId.Value);
-            }
-
-            var products = await query.ToListAsync();
-
-            return products.Select(p => MapToResponseDto(p));
-        }
+                .Where(p => !p.IsDeleted && (!categoryId.HasValue || p.CategoryId == categoryId.Value))
+                .Select(p => MapToResponseDto(p))
+                .ToListAsync();
 
         public async Task<ProductResponseDto?> GetProductByIdAsync(int id)
         {
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
-
+            var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
             return product != null ? MapToResponseDto(product) : null;
         }
 
@@ -94,7 +81,6 @@ namespace RetailAPP_API.Services
 
             product.IsDeleted = true;
             product.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             return true;
         }

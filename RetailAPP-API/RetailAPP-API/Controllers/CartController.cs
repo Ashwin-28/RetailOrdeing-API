@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetailAPP_API.DTOs.CartDTOs;
@@ -8,7 +8,7 @@ namespace RetailAPP_API.Controllers
 {
     [Route("api/cart")]
     [ApiController]
-    [Authorize] // Assuming Identity is handled
+    [Authorize]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -19,9 +19,6 @@ namespace RetailAPP_API.Controllers
         }
 
         private string CurrentUserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "guest_user";
-        // Note: 'guest_user' is for testing if [Authorize] is disabled
-
-        // GET: /api/cart
         [HttpGet]
         public async Task<ActionResult<CartSummaryDto>> GetCart()
         {
@@ -29,7 +26,6 @@ namespace RetailAPP_API.Controllers
             return Ok(cart);
         }
 
-        // POST: /api/cart/add
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartDto addDto)
         {
@@ -41,7 +37,6 @@ namespace RetailAPP_API.Controllers
             return Ok(new { message = "Item added to cart successfully." });
         }
 
-        // DELETE: /api/cart/remove/{itemId}
         [HttpDelete("remove/{itemId}")]
         public async Task<IActionResult> RemoveFromCart(int itemId)
         {
@@ -51,7 +46,6 @@ namespace RetailAPP_API.Controllers
             return NoContent();
         }
 
-        // POST: /api/cart/checkout
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout()
         {

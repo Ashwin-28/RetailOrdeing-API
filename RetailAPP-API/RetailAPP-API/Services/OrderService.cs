@@ -15,37 +15,21 @@ namespace RetailAPP_API.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<OrderDto>> GetUserOrdersAsync(string userId)
-        {
-            var orders = await _context.Orders
-                .Include(o => o.OrderItems)
-                .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.PlacedAt)
-                .ToListAsync();
-
-            return orders.Select(MapToDto);
-        }
+        public async Task<IEnumerable<OrderDto>> GetUserOrdersAsync(string userId) =>
+            await _context.Orders.Include(o => o.OrderItems)
+                .Where(o => o.UserId == userId).OrderByDescending(o => o.PlacedAt)
+                .Select(o => MapToDto(o)).ToListAsync();
 
         public async Task<OrderDto?> GetOrderByIdAsync(int id, string userId)
         {
-            var order = await _context.Orders
-                .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
-
-            if (order == null) return null;
-
-            return MapToDto(order);
+            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+            return order != null ? MapToDto(order) : null;
         }
 
-        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
-        {
-            var orders = await _context.Orders
-                .Include(o => o.OrderItems)
+        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync() =>
+            await _context.Orders.Include(o => o.OrderItems)
                 .OrderByDescending(o => o.PlacedAt)
-                .ToListAsync();
-
-            return orders.Select(MapToDto);
-        }
+                .Select(o => MapToDto(o)).ToListAsync();
 
         public async Task<bool> UpdateOrderStatusAsync(int id, OrderStatus status)
         {
@@ -53,18 +37,15 @@ namespace RetailAPP_API.Services
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.Id == id);
-                
+
             if (order == null) return false;
 
             // If the order is being cancelled, restore the inventory
             if (status == OrderStatus.Cancelled && order.Status != OrderStatus.Cancelled)
             {
-                foreach (var item in order.OrderItems)
+                foreach (var item in order.OrderItems.Where(i => i.Product != null))
                 {
-                    if (item.Product != null)
-                    {
-                        item.Product.StockQuantity += item.Quantity;
-                    }
+                    item.Product.StockQuantity += item.Quantity;
                 }
             }
 
@@ -73,6 +54,58 @@ namespace RetailAPP_API.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<OrderDto?> CreateOrderAsync(string userId, PlaceOrderDto placeOrderDto)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || placeOrderDto == null || 
+                string.IsNullOrWhiteSpace(placeOrderDto.CustomerName) || 
+                string.IsNullOrWhiteSpace(placeOrderDto.CustomerPhone) || 
+                string.IsNullOrWhiteSpace(placeOrderDto.CustomerAddress)) return null;
+
+            try
+            {
+                var cart = await _context.Carts.Include(c => c.CartItems).ThenInclude(ci => ci.Product)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                if (cart == null || !cart.CartItems.Any() || cart.CartItems.Any(ci => ci.Product == null || ci.Product.StockQuantity < ci.Quantity))
+                    return null;
+
+                var totalAmount = cart.CartItems.Sum(ci => ci.Product!.Price * ci.Quantity);
+
+                var order = new Order
+                {
+                    UserId = userId,
+                    CustomerName = placeOrderDto.CustomerName,
+                    CustomerPhone = placeOrderDto.CustomerPhone,
+                    CustomerAddress = placeOrderDto.CustomerAddress,
+                    TotalAmount = totalAmount,
+                    Status = OrderStatus.Pending,
+                    Notes = placeOrderDto.Notes,
+                    PlacedAt = DateTime.UtcNow,
+                    OrderItems = cart.CartItems.Select(ci => new OrderItem
+                    {
+                        ProductId = ci.ProductId,
+                        Quantity = ci.Quantity,
+                        UnitPrice = ci.Product!.Price
+                    }).ToList()
+                };
+
+                foreach (var item in cart.CartItems)
+                {
+                    item.Product!.StockQuantity -= item.Quantity;
+                }
+
+                _context.Orders.Add(order);
+                _context.CartItems.RemoveRange(cart.CartItems);
+                await _context.SaveChangesAsync();
+
+                return MapToDto(order);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private OrderDto MapToDto(Order order)
