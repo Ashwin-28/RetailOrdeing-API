@@ -1,0 +1,61 @@
+<div class="page">
+  <header class="header">
+    <h2>Admin Dashboard</h2>
+    <div class="actions">
+      <button class="cta-btn" (click)="openAdd()">+ Add Product</button>
+      <button class="danger-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="glass-card table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of products">
+          <td>#{{ p.id }}</td>
+          <td><img [src]="p.imageUrl || 'https://placehold.co/50x50/1e293b/94a3b8?text=N'" class="thumb"></td>
+          <td>
+            <strong>{{ p.name }}</strong><br>
+            <span class="sub">{{ p.description }}</span>
+          </td>
+          <td class="accent">${{ p.price }}</td>
+          <td [class.low]="p.isLowStock">{{ p.stockQuantity }}</td>
+          <td>{{ p.categoryName }}</td>
+          <td>
+            <button class="sm-btn edit" (click)="openEdit(p)">Edit</button>
+            <button class="sm-btn del" (click)="deleteProduct(p.id)">Del</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="empty" *ngIf="products.length === 0">No products yet. Add one!</p>
+  </div>
+
+  <!-- Modal -->
+  <div class="overlay" *ngIf="showModal" (click)="showModal = false">
+    <div class="glass-card modal" (click)="$event.stopPropagation()">
+      <h3>{{ editMode ? 'Edit Product' : 'Add Product' }}</h3>
+      <form (ngSubmit)="save()">
+        <div class="inp"><label>Name</label><input [(ngModel)]="form.name" name="name" required></div>
+        <div class="inp"><label>Image URL</label><input [(ngModel)]="form.imageUrl" name="imageUrl"></div>
+        <div class="inp"><label>Description</label><textarea [(ngModel)]="form.description" name="desc" rows="2"></textarea></div>
+        <div class="row">
+          <div class="inp half"><label>Price</label><input type="number" [(ngModel)]="form.price" name="price" required></div>
+          <div class="inp half"><label>Stock</label><input type="number" [(ngModel)]="form.stockQuantity" name="stock" required></div>
+        </div>
+        <div class="row">
+          <div class="inp half"><label>Category ID</label><input type="number" [(ngModel)]="form.categoryId" name="catId" required></div>
+          <div class="inp half"><label>Low Stock Alert</label><input type="number" [(ngModel)]="form.lowStockThreshold" name="threshold"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="ghost-btn" (click)="showModal = false">Cancel</button>
+          <button type="submit" class="cta-btn">{{ editMode ? 'Update' : 'Create' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

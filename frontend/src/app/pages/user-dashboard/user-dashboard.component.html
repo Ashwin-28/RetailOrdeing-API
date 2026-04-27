@@ -1,0 +1,32 @@
+<div class="page">
+  <header class="header">
+    <h2>Hi, {{ userName }} 👋</h2>
+    <div class="actions">
+      <button (click)="goToOrders()" class="ghost-btn">Orders</button>
+      <button (click)="goToCart()" class="cta-btn">🛒 Cart ({{ cartCount }})</button>
+      <button (click)="logout()" class="danger-btn">Logout</button>
+    </div>
+  </header>
+
+  <div class="categories">
+    <button *ngFor="let c of categories" [class.active]="activeCategory === c" (click)="filterBy(c)">{{ c }}</button>
+  </div>
+
+  <div class="grid">
+    <div class="glass-card card" *ngFor="let p of filtered">
+      <img [src]="p.imageUrl || 'https://placehold.co/300x200/1e293b/94a3b8?text=No+Image'" [alt]="p.name" class="card-img">
+      <div class="card-body">
+        <h3>{{ p.name }}</h3>
+        <p class="desc">{{ p.description }}</p>
+        <div class="bottom-row">
+          <span class="price">${{ p.price }}</span>
+          <span class="stock" [class.low]="p.isLowStock">{{ p.stockQuantity }} left</span>
+          <button class="add-btn" (click)="addToCart(p)" [disabled]="!p.isAvailable">{{ p.isAvailable ? '+ Add' : 'Out' }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="empty" *ngIf="filtered.length === 0 && !loading">No products found.</p>
+  <p class="empty" *ngIf="loading">Loading products...</p>
+</div>

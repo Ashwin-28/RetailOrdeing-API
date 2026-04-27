@@ -1,0 +1,32 @@
+<div class="page">
+  <header class="header">
+    <h2>Order History</h2>
+    <button (click)="goBack()" class="ghost-btn">← Back</button>
+  </header>
+
+  <div class="orders" *ngIf="orders.length > 0; else empty">
+    <div class="glass-card order" *ngFor="let o of orders">
+      <div class="order-top">
+        <span class="id">#{{ o.id }}</span>
+        <span class="badge" [class]="'s' + o.status">{{ statusLabel(o.status) }}</span>
+      </div>
+      <div class="order-body">
+        <p><strong>{{ o.customerName }}</strong> · {{ o.customerPhone }}</p>
+        <p class="addr">{{ o.customerAddress }}</p>
+        <p class="date">{{ o.placedAt | date:'medium' }}</p>
+      </div>
+      <div class="order-footer">
+        <span>{{ o.orderItems.length }} item(s)</span>
+        <span class="amount">${{ o.totalAmount.toFixed(2) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #empty>
+    <div class="glass-card empty-state">
+      <h3>No orders yet</h3>
+      <p>Place your first order to see it here.</p>
+      <button class="cta-btn" (click)="goBack()">Start Shopping</button>
+    </div>
+  </ng-template>
+</div>
