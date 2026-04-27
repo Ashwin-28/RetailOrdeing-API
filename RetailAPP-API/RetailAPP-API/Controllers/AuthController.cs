@@ -24,7 +24,7 @@ namespace RetailAPP_API.Controllers
 
             var result = await _authService.RegisterAsync(model);
             if (!result.IsSuccess)
-                return StatusCode(StatusCodes.Status500InternalServerError, result);
+                return BadRequest(result);
 
             return Ok(result);
         }

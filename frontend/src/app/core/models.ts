@@ -81,6 +81,7 @@ export interface PlaceOrderDto {
   customerPhone: string;
   customerAddress: string;
   notes?: string;
+  items: { productId: number; quantity: number }[];
 }
 
 /* ===== Cart DTOs (local + backend) ===== */

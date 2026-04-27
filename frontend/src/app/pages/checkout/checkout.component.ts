@@ -14,16 +14,29 @@ import { PlaceOrderDto } from '../../core/models';
   styleUrls: ['./checkout.component.css']
 })
 export class CheckoutComponent {
-  form: PlaceOrderDto = { customerName: '', customerPhone: '', customerAddress: '', notes: '' };
+  form: PlaceOrderDto = { customerName: '', customerPhone: '', customerAddress: '', notes: '', items: [] };
   loading = false;
   error = '';
   done = false;
 
-  constructor(private orderSvc: OrderService, private cartSvc: CartService, private router: Router) {}
+  constructor(private orderSvc: OrderService, private cartSvc: CartService, private router: Router) { }
 
   confirm() {
     this.loading = true;
     this.error = '';
+
+    // Map cart items to the order DTO
+    this.form.items = this.cartSvc.cart$.value.map(i => ({
+      productId: i.product.id,
+      quantity: i.quantity
+    }));
+
+    if (this.form.items.length === 0) {
+      this.error = 'Your cart is empty.';
+      this.loading = false;
+      return;
+    }
+
     this.orderSvc.placeOrder(this.form).subscribe({
       next: () => {
         this.cartSvc.clearCart();

@@ -5,9 +5,9 @@ import { ProductResponseDto, CreateProductDto, UpdateProductDto } from './models
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
-  private baseUrl = 'http://localhost:5052/api/products';
+  private baseUrl = 'http://localhost:5053/api/products';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(categoryId?: number): Observable<ProductResponseDto[]> {
     const url = categoryId ? `${this.baseUrl}?categoryId=${categoryId}` : this.baseUrl;

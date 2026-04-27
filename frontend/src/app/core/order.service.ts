@@ -5,9 +5,9 @@ import { OrderDto, PlaceOrderDto } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
-  private baseUrl = 'http://localhost:5052/api/Orders';
+  private baseUrl = 'http://localhost:5053/api/Orders';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getUserOrders(): Observable<OrderDto[]> {
     return this.http.get<OrderDto[]>(this.baseUrl);

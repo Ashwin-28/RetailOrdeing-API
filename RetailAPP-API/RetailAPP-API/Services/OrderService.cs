@@ -65,13 +65,51 @@ namespace RetailAPP_API.Services
 
             try
             {
-                var cart = await _context.Carts.Include(c => c.CartItems).ThenInclude(ci => ci.Product)
-                    .FirstOrDefaultAsync(c => c.UserId == userId);
+                var orderItems = new List<OrderItem>();
+                decimal subTotal = 0;
 
-                if (cart == null || !cart.CartItems.Any() || cart.CartItems.Any(ci => ci.Product == null || ci.Product.StockQuantity < ci.Quantity))
-                    return null;
+                // Case 1: Items provided in DTO (Direct checkout from frontend cart)
+                if (placeOrderDto.Items != null && placeOrderDto.Items.Any())
+                {
+                    foreach (var itemDto in placeOrderDto.Items)
+                    {
+                        var product = await _context.Products.FindAsync(itemDto.ProductId);
+                        if (product == null || product.IsDeleted || product.StockQuantity < itemDto.Quantity)
+                            return null;
 
-                var totalAmount = cart.CartItems.Sum(ci => ci.Product!.Price * ci.Quantity);
+                        orderItems.Add(new OrderItem
+                        {
+                            ProductId = product.Id,
+                            Quantity = itemDto.Quantity,
+                            UnitPrice = product.Price
+                        });
+
+                        subTotal += product.Price * itemDto.Quantity;
+                        product.StockQuantity -= itemDto.Quantity;
+                    }
+                }
+                // Case 2: Read from Database Cart
+                else
+                {
+                    var cart = await _context.Carts.Include(c => c.CartItems).ThenInclude(ci => ci.Product)
+                        .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                    if (cart == null || !cart.CartItems.Any() || cart.CartItems.Any(ci => ci.Product == null || ci.Product.StockQuantity < ci.Quantity))
+                        return null;
+
+                    foreach (var ci in cart.CartItems)
+                    {
+                        orderItems.Add(new OrderItem
+                        {
+                            ProductId = ci.ProductId,
+                            Quantity = ci.Quantity,
+                            UnitPrice = ci.Product!.Price
+                        });
+                        subTotal += ci.Product.Price * ci.Quantity;
+                        ci.Product.StockQuantity -= ci.Quantity;
+                    }
+                    _context.CartItems.RemoveRange(cart.CartItems);
+                }
 
                 var order = new Order
                 {
@@ -79,25 +117,14 @@ namespace RetailAPP_API.Services
                     CustomerName = placeOrderDto.CustomerName,
                     CustomerPhone = placeOrderDto.CustomerPhone,
                     CustomerAddress = placeOrderDto.CustomerAddress,
-                    TotalAmount = totalAmount,
+                    TotalAmount = subTotal, // Tax removed as requested
                     Status = OrderStatus.Pending,
                     Notes = placeOrderDto.Notes,
                     PlacedAt = DateTime.UtcNow,
-                    OrderItems = cart.CartItems.Select(ci => new OrderItem
-                    {
-                        ProductId = ci.ProductId,
-                        Quantity = ci.Quantity,
-                        UnitPrice = ci.Product!.Price
-                    }).ToList()
+                    OrderItems = orderItems
                 };
 
-                foreach (var item in cart.CartItems)
-                {
-                    item.Product!.StockQuantity -= item.Quantity;
-                }
-
                 _context.Orders.Add(order);
-                _context.CartItems.RemoveRange(cart.CartItems);
                 await _context.SaveChangesAsync();
 
                 return MapToDto(order);

@@ -36,8 +36,11 @@ namespace RetailAPP_API.Services
             var user = new ApplicationUser()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Email
+                UserName = model.Email,
+                Name = model.Name,
+                PhoneNumber = model.Phone,
+                Address = model.Address,
+                SecurityStamp = Guid.NewGuid().ToString()
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -90,7 +93,11 @@ namespace RetailAPP_API.Services
                 { 
                     IsSuccess = true, 
                     Message = "Login successful!", 
-                    Token = tokenString 
+                    Token = tokenString,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Role = userRoles.FirstOrDefault(),
+                    ExpiresAt = DateTime.Now.AddHours(3)
                 };
             }
             return new AuthResponseDto { IsSuccess = false, Message = "Invalid login attempt!" };

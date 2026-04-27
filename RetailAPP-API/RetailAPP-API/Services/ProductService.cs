@@ -14,12 +14,25 @@ namespace RetailAPP_API.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync(int? categoryId) =>
-            await _context.Products
-                .Include(p => p.Category)
-                .Where(p => !p.IsDeleted && (!categoryId.HasValue || p.CategoryId == categoryId.Value))
-                .Select(p => MapToResponseDto(p))
-                .ToListAsync();
+        public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync(int? categoryId)
+        {
+            Console.WriteLine($"[ProductService] Fetching products for category: {categoryId}");
+            try 
+            {
+                var products = await _context.Products
+                    .Include(p => p.Category)
+                    .Where(p => !p.IsDeleted && (!categoryId.HasValue || p.CategoryId == categoryId.Value))
+                    .ToListAsync();
+                
+                Console.WriteLine($"[ProductService] Found {products.Count} products.");
+                return products.Select(p => MapToResponseDto(p)).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ProductService] ERROR: {ex.Message}");
+                throw;
+            }
+        }
 
         public async Task<ProductResponseDto?> GetProductByIdAsync(int id)
         {

@@ -8,11 +8,11 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private baseUrl = 'http://localhost:5052/api/Auth';
+  private baseUrl = 'http://localhost:5053/api/Auth';
   private tokenKey = 'jwt_token';
   private userKey = 'user_info';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(dto: LoginDto): Observable<AuthResponseDto> {
     return this.http.post<AuthResponseDto>(`${this.baseUrl}/login`, dto);
