@@ -101,6 +101,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<RetailAPP_API.Services.IAuthService, RetailAPP_API.Services.AuthService>();
 builder.Services.AddScoped<RetailAPP_API.Services.IOrderService, RetailAPP_API.Services.OrderService>();
+builder.Services.AddScoped<RetailAPP_API.Services.ICartService, RetailAPP_API.Services.CartService>();
+builder.Services.AddScoped<RetailAPP_API.Services.IProductService, RetailAPP_API.Services.ProductService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

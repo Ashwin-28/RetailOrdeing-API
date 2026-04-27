@@ -49,8 +49,24 @@ namespace RetailAPP_API.Services
 
         public async Task<bool> UpdateOrderStatusAsync(int id, OrderStatus status)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == id);
+                
             if (order == null) return false;
+
+            // If the order is being cancelled, restore the inventory
+            if (status == OrderStatus.Cancelled && order.Status != OrderStatus.Cancelled)
+            {
+                foreach (var item in order.OrderItems)
+                {
+                    if (item.Product != null)
+                    {
+                        item.Product.StockQuantity += item.Quantity;
+                    }
+                }
+            }
 
             order.Status = status;
             order.UpdatedAt = DateTime.UtcNow;
