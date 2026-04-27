@@ -1,4 +1,4 @@
-﻿namespace RetailAPP_API.Models
+namespace RetailAPP_API.Models
 {
     public class Cart
     {
@@ -7,7 +7,7 @@
         public DateTime? UpdatedAt { get; set; }
 
         // Foreign key
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         // Navigation
         public ApplicationUser User { get; set; } = null!;

@@ -1,4 +1,4 @@
-﻿namespace RetailAPP_API.Models
+namespace RetailAPP_API.Models
 {
     public class Product
     {
@@ -7,6 +7,9 @@
         public string? Description { get; set; }
         public decimal Price { get; set; }
         public string? ImageUrl { get; set; }           // URL or file path to product image
+        
+        public string Brand { get; set; } = string.Empty;
+        public string Packaging { get; set; } = string.Empty; // e.g., "Box", "Bottle", "Wrapper"
 
         // ── INVENTORY FIELDS ──────────────────────────────────────────────────
         public int StockQuantity { get; set; }          // current stock

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RetailAPP_API.Data;
 using RetailAPP_API.DTOs.ProductDTOs;
 using RetailAPP_API.Models;
@@ -48,6 +48,8 @@ namespace RetailAPP_API.Services
                 Description = createDto.Description,
                 Price = createDto.Price,
                 ImageUrl = createDto.ImageUrl,
+                Brand = createDto.Brand,
+                Packaging = createDto.Packaging,
                 StockQuantity = createDto.StockQuantity,
                 LowStockThreshold = createDto.LowStockThreshold,
                 CategoryId = createDto.CategoryId,
@@ -73,6 +75,8 @@ namespace RetailAPP_API.Services
             product.Description = updateDto.Description;
             product.Price = updateDto.Price;
             product.ImageUrl = updateDto.ImageUrl;
+            product.Brand = updateDto.Brand;
+            product.Packaging = updateDto.Packaging;
             product.StockQuantity = updateDto.StockQuantity;
             product.LowStockThreshold = updateDto.LowStockThreshold;
             product.CategoryId = updateDto.CategoryId;
@@ -117,6 +121,8 @@ namespace RetailAPP_API.Services
                 Description = product.Description,
                 Price = product.Price,
                 ImageUrl = product.ImageUrl,
+                Brand = product.Brand,
+                Packaging = product.Packaging,
                 StockQuantity = product.StockQuantity,
                 IsAvailable = product.IsAvailable,
                 IsLowStock = product.StockQuantity <= product.LowStockThreshold,
