@@ -1,9 +1,9 @@
-﻿namespace RetailAPP_API.DTOs.OrderDTOs
+using RetailAPP_API.Models.Enums;
+
+namespace RetailAPP_API.DTOs.OrderDTOs
 {
     public class UpdateOrderStatusDto
     {
-        public string Status { get; set; } = string.Empty;
-        // Pending / Confirmed / Shipped / Delivered / Cancelled
-
+        public OrderStatus Status { get; set; }
     }
 }
