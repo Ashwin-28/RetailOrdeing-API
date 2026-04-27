@@ -4,4 +4,5 @@ namespace RetailAPP_API.Models;
 
 public class ApplicationUser : IdentityUser
 {
+  
 }
