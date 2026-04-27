@@ -1,12 +1,13 @@
 ﻿namespace RetailAPP_API.DTOs.AuthDTOs
 {
-    public class AuthResponseDto
+    public class UserProfileDto
     {
-        public string Token { get; set; } = string.Empty;
+        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
-        public DateTime ExpiresAt { get; set; }
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
 
     }
 }
